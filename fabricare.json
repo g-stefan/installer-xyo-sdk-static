@@ -1,0 +1,15 @@
+{
+	"solution": {
+		"name" : "installer-xyo-sdk-static",
+		"type" : "xyo-cpp",
+		"projects": [
+			{
+				"name" : "installer-xyo-sdk-static",
+				"type" : "xyo-cpp",
+				"SPDX-License-Identifier": "MIT",
+				"version" : "7.4.0",
+				"noVersion" : true
+			}
+		]
+	}
+}

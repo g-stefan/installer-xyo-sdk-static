@@ -1,0 +1,25 @@
+This SDK is a compilation of different works distributed under some of the
+licenses listed below:
+
+    The MIT License
+    PHP License version 3.01
+    The BSD 2-Clause License
+    The BSD 3-Clause License
+    GNU Lesser General Public License (GNU LGPL) version 2.1 or later
+    SIL OPEN FONT LICENSE Version 1.1
+    Apache License, Version 2.0
+    Boost Software License - Version 1.0
+    GNU General Public License (GNU GPL) version 2.0 or later
+
+Some files are under other licenses and carry additional requirements and
+copyright information.
+This can be indicated in the license + copyright comment block at the top
+of the source file or/and binary file help commands.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
