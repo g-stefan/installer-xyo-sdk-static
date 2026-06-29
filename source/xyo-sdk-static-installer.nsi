@@ -10,25 +10,25 @@
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 
-; The name of the installer
-Name "XYO SDK Static"
-
 ; Version
 !define XYOSDKVersion "$%PRODUCT_VERSION%"
 
+; The name of the installer
+Name "XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
+
 ; The file to write
-OutFile "release\xyo-sdk-static-${XYOSDKVersion}-installer.exe"
+OutFile "release\xyo-sdk-win64-msvc-2022-static-${XYOSDKVersion}-installer.exe"
 
 Unicode True
 RequestExecutionLevel admin
 BrandingText "Grigore Stefan [ github.com/g-stefan ]"
 
-!define SoftwareInstallDir "$PROGRAMFILES64\XYO"
-!define SoftwareMainDir "\XYO"
-!define SoftwareSubDir "\SDK.Static"
-!define SoftwareRegKey "Software\XYO\SDK.Static"
-!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO SDK Static"
-!define UninstallName "Uninstall SDK.Static"
+!define SoftwareInstallDir "$PROGRAMFILES64\XYO\SDK\win64-msvc-2022.static\v${XYOSDKVersion}"
+!define SoftwareMainDir "\XYO\SDK\win64-msvc-2022.static"
+!define SoftwareSubDir "\v${XYOSDKVersion}"
+!define SoftwareRegKey "Software\XYO\SDK\win64-msvc-2022-static-v${XYOSDKVersion}"
+!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
+!define UninstallName "Uninstall XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
 
 ; The default installation directory
 InstallDir "${SoftwareInstallDir}"
@@ -123,7 +123,7 @@ Section "XYO SDK (required)" MainSection
 	WriteRegStr HKLM "${SoftwareRegKey}" "InstallPath" "$INSTDIR"
 
 	; Write the uninstall keys for Windows
-	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "XYO SDK Static"
+	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
 	WriteRegStr HKLM "${UninstallRegKey}" "Publisher" "Grigore Stefan [ github.com/g-stefan ]"
 	WriteRegStr HKLM "${UninstallRegKey}" "DisplayVersion" "${XYOSDKVersion}"
 	WriteRegStr HKLM "${UninstallRegKey}" "DisplayIcon" '"$INSTDIR${SoftwareSubDir}\xyo.ico"'
@@ -139,9 +139,9 @@ Section "XYO SDK (required)" MainSection
 
 	; SDK directory
 	ReadEnvStr $PathUserProfile USERPROFILE
-	CreateDirectory "$PathUserProfile\SDK.Static\bin"
-	CreateDirectory "$PathUserProfile\SDK.Static\include"
-	CreateDirectory "$PathUserProfile\SDK.Static\lib"
+	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
+	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
+	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
 
 ; Uninstaller
 !ifndef INNER

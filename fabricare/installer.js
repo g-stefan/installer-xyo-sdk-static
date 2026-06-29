@@ -13,10 +13,10 @@ Shell.setenv("PRODUCT_BASE", "xyo-sdk");
 Shell.setenv("PRODUCT_PLATFORM", Platform.name);
 
 exitIf(Shell.system("makensis.exe /NOCD \"source\\xyo-sdk-static-installer.nsi\""));
-exitIf(Shell.system("grigore-stefan.sign \"XYO SDK\" \"release\\xyo-sdk-static-" + Project.version + "-installer.exe\""));
+exitIf(Shell.system("grigore-stefan.sign \"XYO SDK\" \"release\\xyo-sdk-win64-msvc-2022-static-" + Project.version + "-installer.exe\""));
 
-var fileName = "xyo-sdk-static-" + Project.version + "-installer.exe";
-var jsonName = "xyo-sdk-static-" + Project.version + "-installer.json";
+var fileName = "xyo-sdk-win64-msvc-2022-static-" + Project.version + "-installer.exe";
+var jsonName = "xyo-sdk-win64-msvc-2022-static-" + Project.version + "-installer.json";
 
 var json = {};
 json[fileName] = SHA512.fileHash("release/" + fileName);
