@@ -14,7 +14,7 @@
 !define XYOSDKVersion "$%PRODUCT_VERSION%"
 
 ; The name of the installer
-Name "XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
+Name "XYO SDK Win64-MSVC-2022 Static v${XYOSDKVersion}"
 
 ; The file to write
 OutFile "release\xyo-sdk-win64-msvc-2022-static-${XYOSDKVersion}-installer.exe"
@@ -27,8 +27,8 @@ BrandingText "Grigore Stefan [ github.com/g-stefan ]"
 !define SoftwareMainDir "\XYO\SDK\win64-msvc-2022.static"
 !define SoftwareSubDir "\v${XYOSDKVersion}"
 !define SoftwareRegKey "Software\XYO\SDK\win64-msvc-2022-static-v${XYOSDKVersion}"
-!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
-!define UninstallName "Uninstall XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
+!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO-SDK-Win64-MSVC-2022-Static-v${XYOSDKVersion}"
+!define UninstallName "Uninstall"
 
 ; The default installation directory
 InstallDir "${SoftwareInstallDir}"
@@ -94,7 +94,7 @@ Var PathUserProfile
 	; That will have written an uninstaller binary for us.  Now we sign it with your
 	; favorite code signing tool.
  
-	!system 'grigore-stefan.sign "XYO SDK Static" "temp\${UninstallName}.exe"' = 0
+	!system 'grigore-stefan.sign "XYO SDK" "temp\${UninstallName}.exe"' = 0
  
 	; Good.  Now we can carry on writing the real installer. 	 
 !endif
@@ -123,16 +123,16 @@ Section "XYO SDK (required)" MainSection
 	WriteRegStr HKLM "${SoftwareRegKey}" "InstallPath" "$INSTDIR"
 
 	; Write the uninstall keys for Windows
-	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "XYO SDK Win64-MSVC-2022.Static v${XYOSDKVersion}"
+	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "XYO SDK Win64-MSVC-2022 Static v${XYOSDKVersion}"
 	WriteRegStr HKLM "${UninstallRegKey}" "Publisher" "Grigore Stefan [ github.com/g-stefan ]"
 	WriteRegStr HKLM "${UninstallRegKey}" "DisplayVersion" "${XYOSDKVersion}"
-	WriteRegStr HKLM "${UninstallRegKey}" "DisplayIcon" '"$INSTDIR${SoftwareSubDir}\xyo.ico"'
-	WriteRegStr HKLM "${UninstallRegKey}" "UninstallString" '"$INSTDIR\Uninstallers\${UninstallName}.exe"'
+	WriteRegStr HKLM "${UninstallRegKey}" "DisplayIcon" '"$INSTDIR\xyo.ico"'
+	WriteRegStr HKLM "${UninstallRegKey}" "UninstallString" '"$INSTDIR\${UninstallName}.exe"'
 	WriteRegDWORD HKLM "${UninstallRegKey}" "NoModify" 1
 	WriteRegDWORD HKLM "${UninstallRegKey}" "NoRepair" 1
 
 	; Set output path to the installation directory.
-	SetOutPath "$INSTDIR${SoftwareSubDir}"
+	SetOutPath "$INSTDIR"
 
 	; Program files
 	File /r "output\*"
@@ -145,7 +145,7 @@ Section "XYO SDK (required)" MainSection
 
 ; Uninstaller
 !ifndef INNER
-	SetOutPath "$INSTDIR\Uninstallers"
+	SetOutPath "$INSTDIR"
 	; this packages the signed uninstaller 
 	File "temp\${UninstallName}.exe"
 !endif
@@ -159,26 +159,26 @@ Section "XYO SDK (required)" MainSection
 	EnVar::SetHKLM
 
 	; Set PATH
-	EnVar::Check "PATH" "$INSTDIR${SoftwareSubDir}\bin"
+	EnVar::Check "PATH" "$INSTDIR\bin"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "PATH" "$INSTDIR${SoftwareSubDir}\bin"
+		EnVar::AddValue "PATH" "$INSTDIR\bin"
 		Pop $0
 	${EndIf}
 
 	; Set INCLUDE
-	EnVar::Check "INCLUDE" "$INSTDIR${SoftwareSubDir}\include"
+	EnVar::Check "INCLUDE" "$INSTDIR\include"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "INCLUDE" "$INSTDIR${SoftwareSubDir}\include"
+		EnVar::AddValue "INCLUDE" "$INSTDIR\include"
 		Pop $0
 	${EndIf}
 
 	; Set LIB
-	EnVar::Check "LIB" "$INSTDIR${SoftwareSubDir}\lib"
+	EnVar::Check "LIB" "$INSTDIR\lib"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "LIB" "$INSTDIR${SoftwareSubDir}\lib"
+		EnVar::AddValue "LIB" "$INSTDIR\lib"
 		Pop $0
 	${EndIf}
 
@@ -230,7 +230,7 @@ SectionEnd
 ;Descriptions
 
 ;Language strings
-LangString DESC_MainSection ${LANG_ENGLISH} "XYO SDK Static"
+LangString DESC_MainSection ${LANG_ENGLISH} "XYO SDK"
 
 ;Assign language strings to sections
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -279,16 +279,16 @@ Section "Uninstall"
 	# Check that the uninstall isn't dangerous.
 	!insertmacro BadPathsCheck
  
-	# Does path end with "${SoftwareMainDir}${SoftwareSubDir}"?
-	!define CHECK_PATH "${SoftwareMainDir}"
+	# Does path end with "${SoftwareSubDir}"?
+	!define CHECK_PATH "${SoftwareSubDir}"
 	StrLen $R1 "${CHECK_PATH}"
 	StrCpy $R0 "$INSTDIR" "" -$R1
 	StrCmp $R0 "${CHECK_PATH}" +3
 		MessageBox MB_YESNO|MB_ICONQUESTION "${CHECK_PATH} - $R1 : $R0 - $INSTDIR - Unrecognised uninstall path. Continue anyway?" IDYES +2
 		Abort
  
-	IfFileExists "$INSTDIR${SoftwareSubDir}\*.*" 0 +2
-	IfFileExists "$INSTDIR${SoftwareSubDir}\bin\fabricare.exe" +3
+	IfFileExists "$INSTDIR\*.*" 0 +2
+	IfFileExists "$INSTDIR\bin\fabricare.exe" +3
 		MessageBox MB_OK|MB_ICONSTOP "Install path invalid!"
 		Abort
 
@@ -302,27 +302,24 @@ Section "Uninstall"
 	DeleteRegKey HKLM "${UninstallRegKey}"
 
 	; Remove files and uninstaller
-	RMDir /r "$INSTDIR${SoftwareSubDir}"
-	Delete "$INSTDIR\Uninstallers\${UninstallName}.exe"
-	RMDir "$INSTDIR\Uninstallers"
-	RMDir "$INSTDIR"
+	RMDir /r "$INSTDIR"
 
 	; Set to HKLM
 	EnVar::SetHKLM
 
 	; Remove PATH
-	EnVar::Check "PATH" "$INSTDIR${SoftwareSubDir}\bin"
+	EnVar::Check "PATH" "$INSTDIR\bin"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "PATH" "$INSTDIR${SoftwareSubDir}\bin"
+		EnVar::DeleteValue "PATH" "$INSTDIR\bin"
 		Pop $0
 	${EndIf}
 
 	; Remove INCLUDE
-	EnVar::Check "INCLUDE" "$INSTDIR${SoftwareSubDir}\include"
+	EnVar::Check "INCLUDE" "$INSTDIR\include"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "INCLUDE" "$INSTDIR${SoftwareSubDir}\include"
+		EnVar::DeleteValue "INCLUDE" "$INSTDIR\include"
 		Pop $0
 		EnVar::Update HKLM INCLUDE
 		ReadEnvStr $0 INCLUDE
@@ -333,10 +330,10 @@ Section "Uninstall"
 	${EndIf}
 
 	; Remove LIB
-	EnVar::Check "LIB" "$INSTDIR${SoftwareSubDir}\lib"
+	EnVar::Check "LIB" "$INSTDIR\lib"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "LIB" "$INSTDIR${SoftwareSubDir}\lib"
+		EnVar::DeleteValue "LIB" "$INSTDIR\lib"
 		Pop $0
 		EnVar::Update HKLM LIB
 		ReadEnvStr $0 LIB
