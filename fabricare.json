@@ -7,7 +7,7 @@
 				"name" : "installer-xyo-sdk-static",
 				"type" : "xyo-cpp",
 				"SPDX-License-Identifier": "MIT",
-				"version" : "7.9.0",
+				"version" : "9.0.0",
 				"noVersion" : true
 			}
 		]

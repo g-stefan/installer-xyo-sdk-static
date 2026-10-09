@@ -1,9 +1,9 @@
 # installer-xyo-sdk-static
-[XYO SDK](https://github.com/g-stefan/xyo-sdk) Installer Static CRT
+[XYO SDK](https://github.com/g-stefan/xyo-sdk) Static Installer
 
 ## License
 
-Copyright (c) 2020-2025 Grigore Stefan
+Copyright (c) 2020-2026 Grigore Stefan
 Licensed under the [MIT](LICENSE) license.
 
 **This is a compilation of different works.**

@@ -22,15 +22,12 @@
 		"quantum-script"
 	],
 	"02.windows-port" : [
-		"vendor-lzma",
-		"vendor-ninja-build",
 		"vendor-zlib",
 		"vendor-bzip2",
 		"vendor-win-iconv",
 		"vendor-libpng",
 		"vendor-libxml2",
 		"vendor-libxslt",
-		"vendor-perl",
 		"vendor-openssl"
 	],
 	"03.cross-platform.2" : [
@@ -84,33 +81,14 @@
 		"dll-inject-sample",
 		"net-use",
 		"xyo-win-service",
-		"mount-storage",
-		"proxy-forward"
+		"mount-storage"
 	],
 	"05.vendor" : [
 		"vendor-civetweb",
 		"vendor-libzip",
 		"vendor-libssh2",
 		"vendor-sqlite3",
-		"vendor-imap",
 		"vendor-curl",
-		"vendor-xlnt",
-		"vendor-wxwidgets",
-		"vendor-boost",
-		"vendor-pcre",
-		"vendor-expat",
-		"vendor-glfw"
-	],
-	"06.vendor" : [
-		"vendor-python",
-		"vendor-giflib",
-		"vendor-catch2",
-		"vendor-date",
-		"vendor-libcron",
-		"vendor-openxlsx",
-		"vendor-leptonica",
-		"vendor-opencv",
-		"vendor-tesseract",
-		"vendor-prlib"
+		"vendor-xlnt"
 	]
 }

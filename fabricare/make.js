@@ -12,19 +12,12 @@ messageAction("make");
 Shell.mkdirRecursivelyIfNotExists("output");
 Shell.mkdirRecursivelyIfNotExists("temp");
 
-var SDKPlatform = "win64-msvc-2022.static";
 if (!Shell.fileExists("temp/extract.done.flag")) {
 
 	for (var file of fileList) {
 		var path = "output";
-		if (file.indexOf(SDKPlatform + ".7z") >= 0) {
+		if (file.indexOf(Platform.name + ".bin.zip") >= 0) {
 			path = "output/bin";
-		};
-		if (file.indexOf("perl-") >= 0) {
-			path = "output/opt/perl";
-		};
-		if (file.indexOf("python-") >= 0) {
-			path = "output/opt/python";
 		};
 		Shell.mkdirRecursivelyIfNotExists(path);
 		exitIf(Shell.system("7z x -aoa -o" + path + "/ vendor/" + file));

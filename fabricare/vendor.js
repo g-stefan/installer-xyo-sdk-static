@@ -29,11 +29,12 @@ if (Shell.hasEnv("VENDOR_SOURCE_AUTH")) {
 	vendorSourceAuth = Shell.getenv("VENDOR_SOURCE_AUTH");
 };
 
+var Platform.name = "win64-msvc-2026.static";
 var projectSuper = "xyo-sdk";
-var projectSource = projectSuper + "-" + Project.version + ".static.json";
+var projectSource = "xyo." + projectSuper + ".v" + Project.version + ".win64-msvc-2026.static.json";
 
 if (!Shell.fileExists("vendor/" + projectSource)) {
-	var cmd = "curl --insecure --location " + vendorSourceGit + "/" + projectSuper + "/releases/download/v" + Project.version + "/" + projectSource + " "+vendorSourceAuth+" --output vendor/" + projectSource;
+	var cmd = "curl --insecure --location " + vendorSourceGit + "/" + projectSuper + "/releases/download/v" + Project.version + "/" + projectSource + " " + vendorSourceAuth + " --output vendor/" + projectSource;
 	Console.writeLn(cmd);
 	exitIf(Shell.system(cmd));
 	if (!(Shell.getFileSize("vendor/" + projectSource) > 1024)) {
@@ -57,7 +58,6 @@ if (Script.isNil(json)) {
 
 var fileList = [];
 
-var SDKPlatform = "win64-msvc-2022.static";
 for (var project in json) {
 	if (!useProject(project)) {
 		continue;
@@ -65,13 +65,13 @@ for (var project in json) {
 
 	var release = "";
 	for (var releaseInfo of json[project].release) {
-		if (releaseInfo.indexOf(SDKPlatform + "-dev.7z") >= 0) {
+		if (releaseInfo.indexOf(Platform.name + ".dev.zip") >= 0) {
 			release = releaseInfo;
 		};
 	};
 	if (release.length == 0) {
 		for (var releaseInfo of json[project].release) {
-			if (releaseInfo.indexOf(SDKPlatform + ".7z") >= 0) {
+			if (releaseInfo.indexOf(Platform.name + ".bin.zip") >= 0) {
 				release = releaseInfo;
 			};
 		};
@@ -82,7 +82,7 @@ for (var project in json) {
 	};
 	fileList[fileList.length] = release;
 	if (!Shell.fileExists("vendor/" + release)) {
-		var cmd = "curl --insecure --location " + vendorSourceGit + "/" + project + "/releases/download/v" + json[project].version + "/" + release + " "+vendorSourceAuth+" --output vendor/" + release;
+		var cmd = "curl --insecure --location " + vendorSourceGit + "/" + project + "/releases/download/v" + json[project].version + "/" + release + " " + vendorSourceAuth + " --output vendor/" + release;
 		Console.writeLn(cmd);
 		exitIf(Shell.system(cmd));
 		if (!(Shell.getFileSize("vendor/" + release) > 1024)) {

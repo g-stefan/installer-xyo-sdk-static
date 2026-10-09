@@ -7,33 +7,71 @@
 ; SPDX-License-Identifier: Unlicense
 ;
 
+;--------------------------------
+; Configuration
+;
+; All names, versions and paths used by this script are defined here.
+
+; Product
+!define XYOSDKName "XYO SDK Static"
+!define XYOSDKVersion "$%PRODUCT_VERSION%"
+!define XYOSDKPlatform "win64-msvc-2026.static"
+!define XYOSDKPlatformTitle "Win64-MSVC-2026.Static"
+!define XYOSDKTitle "${XYOSDKName} v${XYOSDKVersion} ${XYOSDKPlatformTitle}"
+!define XYOSDKPublisher "Grigore Stefan [ github.com/g-stefan ]"
+
+; Code signing
+!define SignTool "grigore-stefan.sign"
+!define SignName "${XYOSDKName}"
+
+; Build paths (relative to the project root, makensis is run with /NOCD)
+!define SourceDir "source"
+!define OutputDir "output"
+!define TempDir "temp"
+!define ReleaseDir "release"
+!define ScriptFile "${SourceDir}\${__FILE__}"
+!define InstallerFile "${ReleaseDir}\xyo-sdk.v${XYOSDKVersion}.${XYOSDKPlatform}.installer.exe"
+!define DummyInstallerFile "${TempDir}\dummy-installer.exe"
+!define LicenseFile "${OutputDir}\license.txt"
+!define InstallerIcon "${SourceDir}\system-installer.ico"
+!define UninstallerIcon "${SourceDir}\system-installer.ico"
+!define InstallerWizardBitmap "${SourceDir}\xyo-installer-wizard.bmp"
+!define UninstallerWizardBitmap "${SourceDir}\xyo-uninstaller-wizard.bmp"
+
+; Install paths
+!define SoftwareMainDir "\XYO\SDK\v${XYOSDKVersion}"
+!define SoftwareSubDir "\${XYOSDKPlatform}"
+!define SoftwareInstallDir "$PROGRAMFILES64${SoftwareMainDir}${SoftwareSubDir}"
+!define SoftwareCheckFile "bin\fabricare.exe"
+!define SoftwareIconFile "xyo.ico"
+!define UninstallName "Uninstall"
+
+; Registry
+!define SoftwareRegKey "Software\XYO\SDK\v${XYOSDKVersion}.${XYOSDKPlatform}"
+!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO-SDK.v${XYOSDKVersion}.${XYOSDKPlatformTitle}"
+
+; User SDK path (under %USERPROFILE%)
+!define UserSDKDir "$PathUserProfile\.fabricare\${XYOSDKPlatform}"
+
+;--------------------------------
+
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 
-; Version
-!define XYOSDKVersion "$%PRODUCT_VERSION%"
-
 ; The name of the installer
-Name "XYO SDK Win64-MSVC-2022 Static v${XYOSDKVersion}"
+Name "${XYOSDKTitle}"
 
 ; The file to write
-OutFile "release\xyo-sdk-win64-msvc-2022-static-${XYOSDKVersion}-installer.exe"
+OutFile "${InstallerFile}"
 
 Unicode True
 RequestExecutionLevel admin
-BrandingText "Grigore Stefan [ github.com/g-stefan ]"
-
-!define SoftwareInstallDir "$PROGRAMFILES64\XYO\SDK\win64-msvc-2022.static\v${XYOSDKVersion}"
-!define SoftwareMainDir "\XYO\SDK\win64-msvc-2022.static"
-!define SoftwareSubDir "\v${XYOSDKVersion}"
-!define SoftwareRegKey "Software\XYO\SDK\win64-msvc-2022-static-v${XYOSDKVersion}"
-!define UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\XYO-SDK-Win64-MSVC-2022-Static-v${XYOSDKVersion}"
-!define UninstallName "Uninstall"
+BrandingText "${XYOSDKPublisher}"
 
 ; The default installation directory
 InstallDir "${SoftwareInstallDir}"
 
-; Registry key to check for directory (so if you install again, it will 
+; Registry key to check for directory (so if you install again, it will
 ; overwrite the old one automatically)
 InstallDirRegKey HKLM "${SoftwareRegKey}" "InstallPath"
 
@@ -44,17 +82,17 @@ Var PathUserProfile
 ;Interface Settings
 
 !define MUI_ABORTWARNING
-!define MUI_ICON "source\system-installer.ico"
-!define MUI_UNICON "source\system-installer.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP "source\xyo-installer-wizard.bmp"
-!define MUI_UNWELCOMEFINISHPAGE_BITMAP "source\xyo-uninstaller-wizard.bmp"
+!define MUI_ICON "${InstallerIcon}"
+!define MUI_UNICON "${UninstallerIcon}"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "${InstallerWizardBitmap}"
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "${UninstallerWizardBitmap}"
 
 ;--------------------------------
 ;Pages
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "output\license.txt"
+!insertmacro MUI_PAGE_LICENSE "${LicenseFile}"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -76,33 +114,33 @@ Var PathUserProfile
 ; Generate signed uninstaller
 !ifdef INNER
 	!echo "Inner invocation"                  ; just to see what's going on
-	OutFile "temp\dummy-installer.exe"       ; not really important where this is
+	OutFile "${DummyInstallerFile}"           ; not really important where this is
 	SetCompress off                           ; for speed
 !else
 	!echo "Outer invocation"
- 
+
 	; Call makensis again against current file, defining INNER.  This writes an installer for us which, when
 	; it is invoked, will just write the uninstaller to some location, and then exit.
- 
-	!makensis '/NOCD /DINNER "source\${__FILE__}"' = 0
- 
+
+	!makensis '/NOCD /DINNER "${ScriptFile}"' = 0
+
 	; So now run that installer we just created as build\temp-installer.exe.  Since it
 	; calls quit the return value isn't zero.
- 
-	!system 'set __COMPAT_LAYER=RunAsInvoker&"temp\dummy-installer.exe"' = 2
- 
+
+	!system 'set __COMPAT_LAYER=RunAsInvoker&"${DummyInstallerFile}"' = 2
+
 	; That will have written an uninstaller binary for us.  Now we sign it with your
 	; favorite code signing tool.
- 
-	!system 'grigore-stefan.sign "XYO SDK" "temp\${UninstallName}.exe"' = 0
- 
-	; Good.  Now we can carry on writing the real installer. 	 
+
+	!system '${SignTool} "${SignName}" "${TempDir}\${UninstallName}.exe"' = 0
+
+	; Good.  Now we can carry on writing the real installer.
 !endif
 
 ;--------------------------------
 ;Signed uninstaller: Generate uninstaller only
 Function .onInit
-!ifdef INNER 
+!ifdef INNER
 	; If INNER is defined, then we aren't supposed to do anything except write out
 	; the uninstaller.  This is better than processing a command line option as it means
 	; this entire code path is not present in the final (real) installer.
@@ -115,7 +153,7 @@ FunctionEnd
 ;--------------------------------
 ;Installer Sections
 
-Section "XYO SDK (required)" MainSection
+Section "${XYOSDKName} (required)" MainSection
 
 	SectionIn RO
 	SetRegView 64
@@ -123,10 +161,10 @@ Section "XYO SDK (required)" MainSection
 	WriteRegStr HKLM "${SoftwareRegKey}" "InstallPath" "$INSTDIR"
 
 	; Write the uninstall keys for Windows
-	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "XYO SDK Win64-MSVC-2022 Static v${XYOSDKVersion}"
-	WriteRegStr HKLM "${UninstallRegKey}" "Publisher" "Grigore Stefan [ github.com/g-stefan ]"
+	WriteRegStr HKLM "${UninstallRegKey}" "DisplayName" "${XYOSDKTitle}"
+	WriteRegStr HKLM "${UninstallRegKey}" "Publisher" "${XYOSDKPublisher}"
 	WriteRegStr HKLM "${UninstallRegKey}" "DisplayVersion" "${XYOSDKVersion}"
-	WriteRegStr HKLM "${UninstallRegKey}" "DisplayIcon" '"$INSTDIR\xyo.ico"'
+	WriteRegStr HKLM "${UninstallRegKey}" "DisplayIcon" '"$INSTDIR\${SoftwareIconFile}"'
 	WriteRegStr HKLM "${UninstallRegKey}" "UninstallString" '"$INSTDIR\${UninstallName}.exe"'
 	WriteRegDWORD HKLM "${UninstallRegKey}" "NoModify" 1
 	WriteRegDWORD HKLM "${UninstallRegKey}" "NoRepair" 1
@@ -135,19 +173,19 @@ Section "XYO SDK (required)" MainSection
 	SetOutPath "$INSTDIR"
 
 	; Program files
-	File /r "output\*"
+	File /r "${OutputDir}\*"
 
 	; SDK directory
 	ReadEnvStr $PathUserProfile USERPROFILE
-	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
-	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
-	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
+	CreateDirectory "${UserSDKDir}\bin"
+	CreateDirectory "${UserSDKDir}\include"
+	CreateDirectory "${UserSDKDir}\lib"
 
 ; Uninstaller
 !ifndef INNER
 	SetOutPath "$INSTDIR"
-	; this packages the signed uninstaller 
-	File "temp\${UninstallName}.exe"
+	; this packages the signed uninstaller
+	File "${TempDir}\${UninstallName}.exe"
 !endif
 
 	; Computing EstimatedSize
@@ -180,49 +218,37 @@ Section "XYO SDK (required)" MainSection
 	${If} $0 <> 0
 		EnVar::AddValue "LIB" "$INSTDIR\lib"
 		Pop $0
-	${EndIf}
-
-	; Set XYO_PLATFORM
-	EnVar::Delete "XYO_PLATFORM"
-	Pop $0
-	EnVar::AddValue "XYO_PLATFORM" "win64-msvc-2022.static"
-	Pop $0
+	${EndIf}	
 
 	; Set to HKCU
 	EnVar::SetHKCU
-	
+
 	ReadEnvStr $PathUserProfile USERPROFILE
-	CreateDirectory "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static"
+	CreateDirectory "${UserSDKDir}"
 
 	; Set PATH
-	EnVar::Check "PATH" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
+	EnVar::Check "PATH" "${UserSDKDir}\bin"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "PATH" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
+		EnVar::AddValue "PATH" "${UserSDKDir}\bin"
 		Pop $0
 	${EndIf}
 
 	; Set INCLUDE
-	EnVar::Check "INCLUDE" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
+	EnVar::Check "INCLUDE" "${UserSDKDir}\include"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "INCLUDE" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
+		EnVar::AddValue "INCLUDE" "${UserSDKDir}\include"
 		Pop $0
 	${EndIf}
 
 	; Set LIB
-	EnVar::Check "LIB" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
+	EnVar::Check "LIB" "${UserSDKDir}\lib"
 	Pop $0
 	${If} $0 <> 0
-		EnVar::AddValue "LIB" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
+		EnVar::AddValue "LIB" "${UserSDKDir}\lib"
 		Pop $0
-	${EndIf}
-
-	; Set XYO_PLATFORM_PATH
-	EnVar::Delete "XYO_PLATFORM_PATH"
-	Pop $0
-	EnVar::AddValue "XYO_PLATFORM_PATH" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static"
-	Pop $0
+	${EndIf}	
 
 SectionEnd
 
@@ -230,7 +256,7 @@ SectionEnd
 ;Descriptions
 
 ;Language strings
-LangString DESC_MainSection ${LANG_ENGLISH} "XYO SDK"
+LangString DESC_MainSection ${LANG_ENGLISH} "${XYOSDKName}"
 
 ;Assign language strings to sections
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -269,16 +295,16 @@ Section "Uninstall"
 	  Abort
 	done:
 	!macroend
- 
+
 	ClearErrors
 	ReadRegStr $INSTDIR HKLM "${SoftwareRegKey}" "InstallPath"
 	IfErrors +2
 	StrCmp $INSTDIR "" 0 +2
 		StrCpy $INSTDIR "${SoftwareInstallDir}"
- 
+
 	# Check that the uninstall isn't dangerous.
 	!insertmacro BadPathsCheck
- 
+
 	# Does path end with "${SoftwareSubDir}"?
 	!define CHECK_PATH "${SoftwareSubDir}"
 	StrLen $R1 "${CHECK_PATH}"
@@ -286,9 +312,9 @@ Section "Uninstall"
 	StrCmp $R0 "${CHECK_PATH}" +3
 		MessageBox MB_YESNO|MB_ICONQUESTION "${CHECK_PATH} - $R1 : $R0 - $INSTDIR - Unrecognised uninstall path. Continue anyway?" IDYES +2
 		Abort
- 
+
 	IfFileExists "$INSTDIR\*.*" 0 +2
-	IfFileExists "$INSTDIR\bin\fabricare.exe" +3
+	IfFileExists "$INSTDIR\${SoftwareCheckFile}" +3
 		MessageBox MB_OK|MB_ICONSTOP "Install path invalid!"
 		Abort
 
@@ -325,7 +351,7 @@ Section "Uninstall"
 		ReadEnvStr $0 INCLUDE
 		${If} $0 == ""
 			EnVar::Delete "INCLUDE"
-			Pop $0		
+			Pop $0
 		${EndIf}
 	${EndIf}
 
@@ -339,13 +365,9 @@ Section "Uninstall"
 		ReadEnvStr $0 LIB
 		${If} $0 == ""
 			EnVar::Delete "LIB"
-			Pop $0		
+			Pop $0
 		${EndIf}
-	${EndIf}
-
-	; Remove XYO_PLATFORM
-	EnVar::Delete "XYO_PLATFORM"
-	Pop $0
+	${EndIf}	
 
 	; Set to HKCU
 	EnVar::SetHKCU
@@ -353,44 +375,40 @@ Section "Uninstall"
 	ReadEnvStr $PathUserProfile USERPROFILE
 
 	; Remove PATH
-	EnVar::Check "PATH" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
+	EnVar::Check "PATH" "${UserSDKDir}\bin"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "PATH" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\bin"
+		EnVar::DeleteValue "PATH" "${UserSDKDir}\bin"
 		Pop $0
 	${EndIf}
 
 	; Remove INCLUDE
-	EnVar::Check "INCLUDE" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
+	EnVar::Check "INCLUDE" "${UserSDKDir}\include"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "INCLUDE" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\include"
+		EnVar::DeleteValue "INCLUDE" "${UserSDKDir}\include"
 		Pop $0
 		EnVar::Update HKCU INCLUDE
 		ReadEnvStr $0 INCLUDE
 		${If} $0 == ""
 			EnVar::Delete "INCLUDE"
-			Pop $0		
+			Pop $0
 		${EndIf}
 	${EndIf}
 
 	; Remove LIB
-	EnVar::Check "LIB" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
+	EnVar::Check "LIB" "${UserSDKDir}\lib"
 	Pop $0
 	${If} $0 = 0
-		EnVar::DeleteValue "LIB" "$PathUserProfile\.xyo-sdk\win64-msvc-2022.static\lib"
+		EnVar::DeleteValue "LIB" "${UserSDKDir}\lib"
 		Pop $0
 		EnVar::Update HKCU LIB
 		ReadEnvStr $0 LIB
 		${If} $0 == ""
 			EnVar::Delete "LIB"
-			Pop $0		
+			Pop $0
 		${EndIf}
 	${EndIf}
-
-	; Remove XYO_PLATFORM_PATH
-	EnVar::Delete "XYO_PLATFORM_PATH"
-	Pop $0
 
 SectionEnd
 !endif
@@ -407,7 +425,7 @@ Function GetInstalledSize
 		SectionGetSize ${MainSection} $0
 		IntOp $GetInstalledSize.total $GetInstalledSize.total + $0
 	${endif}
- 
+
 	IntFmt $GetInstalledSize.total "0x%08X" $GetInstalledSize.total
 	Push $GetInstalledSize.total
 FunctionEnd
